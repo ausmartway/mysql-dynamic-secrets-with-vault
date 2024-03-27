@@ -1,0 +1,4 @@
+rolename: customer_dba
+priviledges: ALL PRIVILEGES ON customer.* 
+default_ttl: 300
+max_ttl: 3000

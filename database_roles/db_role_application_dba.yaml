@@ -1,0 +1,4 @@
+rolename: application_dba
+priviledges: ALL PRIVILEGES ON application.* 
+default_ttl: 300
+max_ttl: 3000

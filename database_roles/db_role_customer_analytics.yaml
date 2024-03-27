@@ -1,0 +1,4 @@
+rolename: customer_analytics
+priviledges: SELECT ON customer.* 
+default_ttl: 60
+max_ttl: 600
