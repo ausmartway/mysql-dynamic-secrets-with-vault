@@ -24,8 +24,8 @@ resource "vault_database_secret_backend_connection" "devbox_mysql" {
 
   mysql {
     connection_url = "{{username}}:{{password}}@tcp(devbox:3306)/"
-    username=  "admin"
-  password =  "the_secure_password"
+    username       = "admin"
+    password       = "the_secure_password"
   }
 }
 
@@ -38,12 +38,23 @@ locals {
 }
 
 resource "vault_database_secret_backend_role" "db_roles" {
-  for_each = local.inputdbrolemap
+  for_each            = local.inputdbrolemap
   backend             = vault_mount.database.path
   name                = "${vault_database_secret_backend_connection.devbox_mysql.name}_${each.value.rolename}"
   db_name             = vault_database_secret_backend_connection.devbox_mysql.name
   creation_statements = ["CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT ${each.value.priviledges} TO '{{name}}'@'%'; "]
   # revocation_statements = default revocation statements works well for mysql.
   default_ttl = each.value.default_ttl
-  max_ttl = each.value.max_ttl
+  max_ttl     = each.value.max_ttl
 }
+
+resource "vault_policy" "db_roles" {
+  for_each = local.inputdbrolemap
+  name     = "${vault_database_secret_backend_role.db_roles[each.key].name}_policy"
+  policy   = <<EOF
+path "${vault_mount.database.path}/creds/${vault_database_secret_backend_role.db_roles[each.key].name}" {
+  capabilities = ["read"]
+}
+EOF
+}
+
